@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
@@ -11,6 +11,7 @@ import sharedStylesFn from "webapp/style/sharedStyles";
 import ClusterMap from "webapp/components/ClusterMap";
 import Grid from "@material-ui/core/Grid";
 // import DeliveryTable from "../components/DeliveryTable";
+import ClaimDeliveryDialog from "../components/ClaimDeliveryDialog";
 
 const useStyles = makeStyles((theme) => ({
   ...sharedStylesFn(theme),
@@ -24,6 +25,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const DeliveryContext = React.createContext(null);
+
 export default function DeliveryNeeded() {
   const classes = useStyles();
   const { t: str } = useTranslation();
@@ -31,6 +34,15 @@ export default function DeliveryNeeded() {
     url: `/api/delivery-needed/requests.json`,
     method: "get",
   });
+  const [isDialogOpen, setOpen] = useState(false);
+  const [requestCode, setRequestCode] = useState();
+
+  const store = {
+    handleOpenClaimDialog: (code) => {
+      setRequestCode(code);
+      setOpen(true);
+    },
+  };
 
   if (loading) {
     return <CircularProgress />;
@@ -41,84 +53,91 @@ export default function DeliveryNeeded() {
   }
 
   return (
-    <Box className={classes.root}>
-      <Box className={classes.heading}>
-        <Typography variant="h4">
-          {str("webapp:deliveryNeeded.title", {
-            defaultValue: "{{neighborhood}} Delivery Needed",
-            neighborhood: str("common:neighborhood"),
-          })}
-        </Typography>
-      </Box>
-      <Box className={classes.mapRoot}>
-        <ClusterMap
-          containerStyle={{ height: "550px", width: "100%" }}
-          geoJsonData={data}
-        />
-      </Box>
-      <Grid container spacing={3} direction="row-reverse">
-        <Grid item xs={12} md={6}>
-          <Box>
-            {/*
-            Commenting this out for now until https://github.com/crownheightsaid/mutual-aid-app/issues/125
-            is done. This is because from a UI standpoint it can be confusing to have two identical data displays
-            that aren't connected to one another.
-  
-            Feel free to uncomment for dev work.
+    <DeliveryContext.Provider value={store}>
+      <ClaimDeliveryDialog
+        open={isDialogOpen}
+        onClose={() => setOpen(false)}
+        requestCode={requestCode}
+      />
+      <Box className={classes.root}>
+        <Box className={classes.heading}>
+          <Typography variant="h4">
+            {str("webapp:deliveryNeeded.title", {
+              defaultValue: "{{neighborhood}} Delivery Needed",
+              neighborhood: str("common:neighborhood"),
+            })}
+          </Typography>
+        </Box>
+        <Box className={classes.mapRoot}>
+          <ClusterMap
+            containerStyle={{ height: "550px", width: "100%" }}
+            geoJsonData={data}
+          />
+        </Box>
+        <Grid container spacing={3} direction="row-reverse">
+          <Grid item xs={12} md={6}>
+            <Box>
+              {/*
+              Commenting this out for now until https://github.com/crownheightsaid/mutual-aid-app/issues/125
+              is done. This is because from a UI standpoint it can be confusing to have two identical data displays
+              that aren't connected to one another.
+    
+              Feel free to uncomment for dev work.
 
-            <DeliveryTable
-              rows={data.requests.features.map((f) => f.properties.meta)}
-            />
-          */}
-          </Box>
+              <DeliveryTable
+                rows={data.requests.features.map((f) => f.properties.meta)}
+              />
+            */}
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Box className={classes.description}>
+              <Typography variant="body1">
+                {str("webapp:deliveryNeeded.mapDesc", {
+                  defaultValue:
+                    'Above is a map of all open requests marked "Delivery Needed"',
+                })}
+              </Typography>
+              <List>
+                <ListItem>
+                  {str("webapp:deliveryNeeded.description.dot", {
+                    defaultValue: `Each dot represents a location with one or more requests. This
+                  location is only representative of the cross street data. We do not
+                  store full addresses.`,
+                  })}
+                </ListItem>
+                <ListItem>
+                  {str("webapp:deliveryNeeded.description.clickDot", {
+                    defaultValue: `Click on each cluster (large circle with a number) to zoom into
+                  individual request.`,
+                  })}
+                </ListItem>
+                <ListItem>
+                  {str("webapp:deliveryNeeded.description.popUp", {
+                    defaultValue: `Click on a dot to pop up details. There is a link to the Slack post
+                  for more details, where you can also claim the delivery.`,
+                  })}
+                </ListItem>
+                <ListItem>
+                  {str("webapp:deliveryNeeded.description.multipleRequests", {
+                    defaultValue: `Some dots may represent multiple requests at the same cross-streets.
+                  Clicking on them will display all of the requests.`,
+                  })}
+                </ListItem>
+                <ListItem>
+                  {str("webapp:deliveryNeeded.description.questions", {
+                    defaultValue: `Questions or concerns? Please let us know in`,
+                  })}
+                  <span>&nbsp;</span>
+                  <a href={str("webapp:slack.techChannelUrl")}>
+                    {str("webapp:slack.techChannel")}
+                  </a>
+                </ListItem>
+              </List>
+            </Box>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Box className={classes.description}>
-            <Typography variant="body1">
-              {str("webapp:deliveryNeeded.mapDesc", {
-                defaultValue:
-                  'Above is a map of all open requests marked "Delivery Needed"',
-              })}
-            </Typography>
-            <List>
-              <ListItem>
-                {str("webapp:deliveryNeeded.description.dot", {
-                  defaultValue: `Each dot represents a location with one or more requests. This
-                location is only representative of the cross street data. We do not
-                store full addresses.`,
-                })}
-              </ListItem>
-              <ListItem>
-                {str("webapp:deliveryNeeded.description.clickDot", {
-                  defaultValue: `Click on each cluster (large circle with a number) to zoom into
-                individual request.`,
-                })}
-              </ListItem>
-              <ListItem>
-                {str("webapp:deliveryNeeded.description.popUp", {
-                  defaultValue: `Click on a dot to pop up details. There is a link to the Slack post
-                for more details, where you can also claim the delivery.`,
-                })}
-              </ListItem>
-              <ListItem>
-                {str("webapp:deliveryNeeded.description.multipleRequests", {
-                  defaultValue: `Some dots may represent multiple requests at the same cross-streets.
-                Clicking on them will display all of the requests.`,
-                })}
-              </ListItem>
-              <ListItem>
-                {str("webapp:deliveryNeeded.description.questions", {
-                  defaultValue: `Questions or concerns? Please let us know in`,
-                })}
-                <span>&nbsp;</span>
-                <a href={str("webapp:slack.techChannelUrl")}>
-                  {str("webapp:slack.techChannel")}
-                </a>
-              </ListItem>
-            </List>
-          </Box>
-        </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </DeliveryContext.Provider>
   );
 }

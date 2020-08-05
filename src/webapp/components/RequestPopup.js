@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Popup } from "react-mapbox-gl";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
@@ -12,7 +12,10 @@ import DriveEtaIcon from "@material-ui/icons/DriveEta";
 import Chip from "@material-ui/core/Chip";
 import Tooltip from "@material-ui/core/Tooltip";
 import { differenceInDays, fromUnixTime } from "date-fns";
+import { DeliveryContext } from "../pages/DeliveryNeeded";
 import DaysOpenChip from "./DaysOpenChip";
+
+import Button from "@material-ui/core/Button";
 
 const daysSinceSlackMessage = (slackTs) => {
   const datePosted = fromUnixTime(Number(slackTs));
@@ -38,9 +41,15 @@ const useStyles = makeStyles((theme) => ({
     },
     marginTop: theme.spacing(2),
   },
+  ctaTooltipButton: {
+    backgroundColor: "dodgerblue",
+    color: "white",
+    justifySelf: "right",
+  },
 }));
 
-const RequestPopup = ({ requests, closePopup }) => {
+const RequestPopup = ({ requests, closePopup, handleClaimDelivery }) => {
+  const deliveryContext = useContext(DeliveryContext);
   const classes = useStyles();
   const { t: str } = useTranslation();
 
@@ -83,7 +92,7 @@ const RequestPopup = ({ requests, closePopup }) => {
           <Typography variant="body2">
             {str("webapp:deliveryNeeded.popup.requestCode", {
               defaultValue: `Request code:`,
-            })}
+            })}{" "}{/* eslint-disable-line */}
             {meta.Code}
           </Typography>
 
@@ -108,6 +117,19 @@ const RequestPopup = ({ requests, closePopup }) => {
                 size="small"
               />
             )}
+
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => deliveryContext.handleOpenClaimDialog(meta.Code)}
+              className={classes.ctaTooltipButton}
+            >
+              <Typography variant="button">
+                {str("webapp:deliveryNeeded.popup.claimDelivery", {
+                  defaultValue: "Claim delivery",
+                })}
+              </Typography>
+            </Button>
 
             {meta.slackPermalink ? (
               <DaysOpenChip daysOpen={daysSinceSlackMessage(meta.slackTs)} />
