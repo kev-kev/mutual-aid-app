@@ -11,11 +11,12 @@ import GroupIcon from "@material-ui/icons/Group";
 import DriveEtaIcon from "@material-ui/icons/DriveEta";
 import Chip from "@material-ui/core/Chip";
 import Tooltip from "@material-ui/core/Tooltip";
+import Button from "@material-ui/core/Button";
+import sharedStylesFn from "webapp/style/sharedStyles";
 import { differenceInDays, fromUnixTime } from "date-fns";
+// eslint-disable-next-line import/no-cycle
 import { DeliveryContext } from "../pages/DeliveryNeeded";
 import DaysOpenChip from "./DaysOpenChip";
-
-import Button from "@material-ui/core/Button";
 
 const daysSinceSlackMessage = (slackTs) => {
   const datePosted = fromUnixTime(Number(slackTs));
@@ -23,11 +24,13 @@ const daysSinceSlackMessage = (slackTs) => {
 };
 
 const useStyles = makeStyles((theme) => ({
+  ...sharedStylesFn(theme),
   divider: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
   closeIcon: {
+    cursor: "pointer",
     position: "absolute",
     right: 0,
     top: 0,
@@ -48,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const RequestPopup = ({ requests, closePopup, handleClaimDelivery }) => {
+const RequestPopup = ({ requests, closePopup }) => {
   const deliveryContext = useContext(DeliveryContext);
   const classes = useStyles();
   const { t: str } = useTranslation();
@@ -92,7 +95,8 @@ const RequestPopup = ({ requests, closePopup, handleClaimDelivery }) => {
           <Typography variant="body2">
             {str("webapp:deliveryNeeded.popup.requestCode", {
               defaultValue: `Request code:`,
-            })}{" "}{/* eslint-disable-line */}
+              // eslint-disable-next-line react/jsx-one-expression-per-line
+            })}{" "}
             {meta.Code}
           </Typography>
 

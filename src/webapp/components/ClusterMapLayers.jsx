@@ -5,6 +5,7 @@
    */
 import React, { useState, useEffect } from "react";
 import { Layer, MapContext } from "react-mapbox-gl";
+// eslint-disable-next-line import/no-cycle
 import RequestPopup from "./RequestPopup";
 
 const handleClusterOnClick = (map, e, layerId, sourceId) => {
