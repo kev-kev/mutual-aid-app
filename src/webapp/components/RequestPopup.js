@@ -12,10 +12,9 @@ import DriveEtaIcon from "@material-ui/icons/DriveEta";
 import Chip from "@material-ui/core/Chip";
 import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
+import DeliveryContext from "webapp/context/DeliveryContext";
 import sharedStylesFn from "webapp/style/sharedStyles";
 import { differenceInDays, fromUnixTime } from "date-fns";
-// eslint-disable-next-line import/no-cycle
-import { DeliveryContext } from "../pages/DeliveryNeeded";
 import DaysOpenChip from "./DaysOpenChip";
 
 const daysSinceSlackMessage = (slackTs) => {
