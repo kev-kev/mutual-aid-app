@@ -12,7 +12,7 @@ import ClusterMap from "webapp/components/ClusterMap";
 import Grid from "@material-ui/core/Grid";
 // import DeliveryTable from "../components/DeliveryTable";
 import DeliveryContext from "webapp/context/DeliveryContext";
-import ClaimDeliveryDialog from "webapp/components/ClaimDeliveryDialog";
+import DeliveryDialog from "webapp/components/DeliveryDialog";
 
 const useStyles = makeStyles((theme) => ({
   ...sharedStylesFn(theme),
@@ -55,7 +55,7 @@ export default function DeliveryNeeded() {
 
   return (
     <DeliveryContext.Provider value={store}>
-      <ClaimDeliveryDialog open={isDialogOpen} onClose={() => setOpen(false)} />
+      <DeliveryDialog open={isDialogOpen} onClose={() => setOpen(false)} />
       <Box className={classes.root}>
         <Box className={classes.heading}>
           <Typography variant="h4">
