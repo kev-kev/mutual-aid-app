@@ -16,6 +16,7 @@ import DeliveryContext from "webapp/context/DeliveryContext";
 import sharedStylesFn from "webapp/style/sharedStyles";
 import { differenceInDays, fromUnixTime } from "date-fns";
 import DaysOpenChip from "./DaysOpenChip";
+import getParam from "../helpers/utils";
 
 const daysSinceSlackMessage = (slackTs) => {
   const datePosted = fromUnixTime(Number(slackTs));
@@ -54,6 +55,7 @@ const RequestPopup = ({ requests, closePopup }) => {
   const deliveryContext = useContext(DeliveryContext);
   const classes = useStyles();
   const { t: str } = useTranslation();
+  const showSmsPickup = getParam("sms_pickup") === "true";
 
   return (
     <Popup
@@ -121,18 +123,20 @@ const RequestPopup = ({ requests, closePopup }) => {
               />
             )}
 
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => deliveryContext.handleOpenClaimDialog(meta.Code)}
-              className={classes.ctaTooltipButton}
-            >
-              <Typography variant="button">
-                {str("webapp:deliveryNeeded.popup.claimDelivery", {
-                  defaultValue: "Claim delivery",
-                })}
-              </Typography>
-            </Button>
+            {showSmsPickup && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => deliveryContext.handleOpenClaimDialog(meta.Code)}
+                className={classes.ctaTooltipButton}
+              >
+                <Typography variant="button">
+                  {str("webapp:deliveryNeeded.popup.claimDelivery", {
+                    defaultValue: "Claim delivery",
+                  })}
+                </Typography>
+              </Button>
+            )}
 
             {meta.slackPermalink ? (
               <DaysOpenChip daysOpen={daysSinceSlackMessage(meta.slackTs)} />
